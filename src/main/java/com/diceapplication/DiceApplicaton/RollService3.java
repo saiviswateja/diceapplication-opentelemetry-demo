@@ -18,6 +18,7 @@ public class RollService3
     RollService4 rollService4;
 
     public String serviceRolled(Optional<String> player) {
+        System.out.println("Came to Roll Service 3");
         return rollService4.serviceRolled(player);
     }
 

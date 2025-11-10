@@ -18,6 +18,9 @@ public class RollService2
     @Autowired
     private RollHistoryRepository historyRepo;
 
+    @Autowired
+    private HazelcastSerializationService hazelcastSerializationService;
+
     public String serviceRolled(@RequestParam("player") Optional<String> player) {
         int result = this.getRandomNumber(1, 6);
 
@@ -37,6 +40,20 @@ public class RollService2
         }
         // Save roll to db
         RollHistory history = new RollHistory(playerVal, result, LocalDateTime.now());
+        
+        // Use Hazelcast serialization service (which uses AbstractSerializationService internally)
+        // Serialize the roll history using Hazelcast's SerializationService
+        try {
+            // Store in Hazelcast map - this triggers serialization using AbstractSerializationService internally
+            hazelcastSerializationService.storeInHazelcastMap(history);
+            // Explicitly serialize to demonstrate AbstractSerializationService usage
+            hazelcastSerializationService.serializeRollHistory(history);
+            logger.info("Roll history serialized and stored in Hazelcast using AbstractSerializationService");
+        } catch (Exception e) {
+            logger.warn("Hazelcast serialization failed, but continuing with DB save", e);
+        }
+        
+        // Save to H2 database
         historyRepo.save(history);
         return Integer.toString(result);
     }
