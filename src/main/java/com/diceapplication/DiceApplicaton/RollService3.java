@@ -17,6 +17,7 @@ public class RollService3
     @Autowired
     RollService4 rollService4;
 
+    @MAOtelTrace
     public String serviceRolled(Optional<String> player) {
         System.out.println("Came to Roll Service 3");
         return rollService4.serviceRolled(player);

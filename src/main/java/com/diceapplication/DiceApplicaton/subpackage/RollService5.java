@@ -8,18 +8,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.diceapplication.DiceApplicaton.MAOtelTrace;
 import com.diceapplication.DiceApplicaton.RollService2;
 
 @Component
-public class RollService4
+public class RollService5
 {
-    private static final Logger logger = LoggerFactory.getLogger(RollService4.class);
+    private static final Logger logger = LoggerFactory.getLogger(RollService5.class);
 
     @Autowired
-    RollService5 rollService5;
+    RollService2 rollService2;
 
-    @Transactional
+    @MAOtelTrace
     public String serviceRolled(Optional<String> player) {
-        return rollService5.serviceRolled(player);
+        return rollService2.serviceRolled(player);
     }
 }
