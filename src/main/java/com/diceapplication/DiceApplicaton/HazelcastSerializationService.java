@@ -1,7 +1,13 @@
 package com.diceapplication.DiceApplicaton;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IExecutorService;
+import com.hazelcast.cluster.Member;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +48,53 @@ public class HazelcastSerializationService {
      */
     public void storeInHazelcastMap(RollHistory rollHistory) {
         serializeRollHistory(rollHistory);
+    }
+
+    /**
+     * Collects cache statistics from all members in the Hazelcast cluster
+     * @param cacheName The name of the cache/map to collect statistics for
+     * @return Map containing member UUID as key and statistics string as value
+     */
+    public Map<String, String> collectCacheStats(String cacheName) {
+        if (logger.isTraceEnabled()) {
+            logger.trace(">> collectCacheStats()");
+        }
+        logger.warn("-- collectCacheStats() cacheName : {}", cacheName);
+        System.out.println("Came here");
+
+        IExecutorService executorService = hazelcastInstance.getExecutorService("default");
+        Map<String, String> toRet = new HashMap<>();
+        Map<Member, Future<String>> futures = executorService
+                .submitToAllMembers((Callable<String>) new CacheStatsAccessor(cacheName, null));
+
+        logger.debug("-- collectCacheStats() futures : {}", futures);
+
+        for (Member member : futures.keySet()) {
+            try {
+                toRet.put(member.getUuid().toString(), futures.get(member).get());
+            } catch (InterruptedException | ExecutionException ex) {
+                logger.error("Error collecting cache stats from member: {}", member.getUuid(), ex);
+                throw new RuntimeException("Failed to collect cache statistics", ex);
+            }
+        }
+
+        dummyMethod1();
+        dummyMethod2();
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("<< collectCacheStats()");
+        }
+        return toRet;
+    }
+
+    public void dummyMethod1()
+    {
+        System.out.println("Came to dummy method");
+    }
+
+    public void dummyMethod2()
+    {
+        System.out.println("Came to dummy method");
     }
 }
 

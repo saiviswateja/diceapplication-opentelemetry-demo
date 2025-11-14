@@ -21,7 +21,6 @@ public class RollService2
     @Autowired
     private HazelcastSerializationService hazelcastSerializationService;
 
-    @MAOtelTrace
     public String serviceRolled(@RequestParam("player") Optional<String> player) {
         int result = this.getRandomNumber(1, 6);
 
