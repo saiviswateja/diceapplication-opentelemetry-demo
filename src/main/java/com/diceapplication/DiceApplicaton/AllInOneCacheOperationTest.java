@@ -2,7 +2,8 @@ package com.diceapplication.DiceApplicaton;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.map.IMap;
+import com.hazelcast.core.IMap;
+import com.hazelcast.query.Predicates;
 
 import java.io.Serializable;
 import java.util.concurrent.Callable;
@@ -77,7 +78,7 @@ public class AllInOneCacheOperationTest implements Callable<String>, Serializabl
     {
         map.put("r1", "v1");
         map.put("r2", "v2");
-        map.removeAll(com.hazelcast.query.impl.predicates.TruePredicate.INSTANCE);
+        map.removeAll(Predicates.alwaysTrue());
         return "REMOVE ALL executed: removed all entries";
     }
 

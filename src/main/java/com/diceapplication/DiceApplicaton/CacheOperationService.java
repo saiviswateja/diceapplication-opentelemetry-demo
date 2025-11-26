@@ -2,8 +2,9 @@ package com.diceapplication.DiceApplicaton;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
-import com.hazelcast.map.IMap;
-import com.hazelcast.cluster.Member;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.Member;
+import com.hazelcast.query.Predicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,6 @@ public class CacheOperationService {
     public String executeAllOperationsLocal(String mapName) {
         logger.info("Executing all cache operations locally for map: {}", mapName);
         try {
-            IMap<String, String> map = hazelcastInstance.getMap(mapName);
             AllInOneCacheOperationTest test = new AllInOneCacheOperationTest(mapName);
             return test.call();
         } catch (Exception e) {
@@ -132,7 +132,7 @@ public class CacheOperationService {
         logger.info("Executing REMOVE ALL operation: map={}", mapName);
         try {
             IMap<String, String> map = hazelcastInstance.getMap(mapName);
-            map.removeAll(com.hazelcast.query.impl.predicates.TruePredicate.INSTANCE);
+            map.removeAll(Predicates.alwaysTrue());
             return "REMOVE ALL executed: removed all entries";
         } catch (Exception e) {
             logger.error("Error executing REMOVE ALL operation", e);

@@ -2,11 +2,10 @@ package com.diceapplication.DiceApplicaton;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
-import com.hazelcast.cluster.Member;
+import com.hazelcast.core.Member;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
@@ -66,7 +65,7 @@ public class HazelcastSerializationService {
         IExecutorService executorService = hazelcastInstance.getExecutorService("default");
         Map<String, String> toRet = new HashMap<>();
         Map<Member, Future<String>> futures = executorService
-                .submitToAllMembers((Callable<String>) new CacheStatsAccessor(cacheName, null));
+                .submitToAllMembers(new CacheStatsAccessor(cacheName, null));
 
         logger.debug("-- collectCacheStats() futures : {}", futures);
 
@@ -101,7 +100,7 @@ public class HazelcastSerializationService {
         toRet.put("Success", "Passed");
 
         executorService
-                .execute((Runnable) new CacheStatsAccessorRunnable(cacheName, null));
+                .execute(new CacheStatsAccessorRunnable(cacheName, null));
 
         dummyMethod1();
         dummyMethod2();

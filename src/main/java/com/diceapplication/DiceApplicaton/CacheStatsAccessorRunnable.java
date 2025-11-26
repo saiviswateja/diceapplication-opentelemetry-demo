@@ -7,9 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
-import com.hazelcast.executor.LocalExecutorStats;
-import com.hazelcast.map.IMap;
-import com.hazelcast.map.LocalMapStats;
+import com.hazelcast.core.IMap;
+import com.hazelcast.monitor.LocalMapStats;
+import com.hazelcast.monitor.LocalExecutorStats;
 
 public class CacheStatsAccessorRunnable implements Runnable, Serializable {
     private static final long serialVersionUID = 1L;

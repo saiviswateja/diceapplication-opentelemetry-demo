@@ -3,9 +3,9 @@ package com.diceapplication.DiceApplicaton;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
-import com.hazelcast.map.IMap;
-import com.hazelcast.map.LocalMapStats;
-import com.hazelcast.executor.LocalExecutorStats;
+import com.hazelcast.core.IMap;
+import com.hazelcast.monitor.LocalMapStats;
+import com.hazelcast.monitor.LocalExecutorStats;
 
 import java.io.Serializable;
 import java.util.concurrent.Callable;
