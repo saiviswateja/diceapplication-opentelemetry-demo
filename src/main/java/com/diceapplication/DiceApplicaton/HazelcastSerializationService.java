@@ -5,6 +5,7 @@ import com.hazelcast.core.IExecutorService;
 import com.hazelcast.cluster.Member;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ExecutionException;
@@ -85,6 +86,82 @@ public class HazelcastSerializationService {
             logger.trace("<< collectCacheStats()");
         }
         return toRet;
+    }
+
+    public Map<String, String> collectCacheStatsExecute(String cacheName)
+    {
+        if (logger.isTraceEnabled()) {
+            logger.trace(">> collectCacheStatsExecute()");
+        }
+        logger.warn("-- collectCacheStatsExecute() cacheName : {}", cacheName);
+      logger.warn("Came here to collectCacheStatsExecute");
+
+        IExecutorService executorService = hazelcastInstance.getExecutorService("default");
+        Map<String, String> toRet = new HashMap<>();
+        toRet.put("Success", "Passed");
+
+        executorService
+                .execute((Runnable) new CacheStatsAccessorRunnable(cacheName, null));
+
+        dummyMethod1();
+        dummyMethod2();
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("<< collectCacheStats()");
+        }
+        return toRet;
+    }
+
+    public Map<String, String> collectCacheStatsSubmit(String cacheName) {
+
+        IExecutorService executorService = hazelcastInstance.getExecutorService("default");
+
+        Future<String> future =
+                executorService.submit(new CacheStatsAccessor(cacheName, null));
+
+        Map<String, String> result = new HashMap<>();
+
+        try {
+            String value = future.get();            // single result
+            result.put("single-member", value);     // your choice of key
+        } catch (InterruptedException | ExecutionException ex) {
+            throw new RuntimeException("Failed to collect cache statistics", ex);
+        }
+
+        dummyMethod1();
+        dummyMethod2();
+
+        return result;
+    }
+
+    public Map<String, String> collectCacheStatsSubmitToMembers(String cacheName) {
+
+        IExecutorService executorService = hazelcastInstance.getExecutorService("default");
+
+        // Select the members you want to run on
+        Set<Member> members = hazelcastInstance.getCluster().getMembers();
+
+        Map<Member, Future<String>> futures =
+                executorService.submitToMembers(new CacheStatsAccessor(cacheName, null), members);
+
+        Map<String, String> results = new HashMap<>();
+
+        for (Map.Entry<Member, Future<String>> entry : futures.entrySet()) {
+            Member member = entry.getKey();
+            Future<String> future = entry.getValue();
+
+            try {
+                results.put(member.getUuid().toString(), future.get());
+            } catch (Exception ex) {
+                logger.error("Error collecting cache stats from member: {}", member.getUuid(), ex);
+                throw new RuntimeException("Failed to collect cache statistics", ex);
+            }
+        }
+
+        dummyMethod1();
+        dummyMethod2();
+
+        return results;
     }
 
     public void dummyMethod1()
