@@ -4,7 +4,6 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
-import com.hazelcast.query.Predicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,8 +131,10 @@ public class CacheOperationService {
         logger.info("Executing REMOVE ALL operation: map={}", mapName);
         try {
             IMap<String, String> map = hazelcastInstance.getMap(mapName);
-            map.removeAll(Predicates.alwaysTrue());
-            return "REMOVE ALL executed: removed all entries";
+            // In client mode, use clear() or iterate and remove
+            // removeAll with predicate may not be available in client API
+            map.clear();
+            return "REMOVE ALL executed: removed all entries (using clear)";
         } catch (Exception e) {
             logger.error("Error executing REMOVE ALL operation", e);
             throw new RuntimeException("Failed to execute REMOVE ALL operation", e);

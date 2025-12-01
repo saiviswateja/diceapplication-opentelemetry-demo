@@ -3,7 +3,8 @@ package com.diceapplication.DiceApplicaton;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import com.hazelcast.query.Predicates;
+import com.hazelcast.query.TruePredicate;
+import com.hazelcast.query.Predicate;
 
 import java.io.Serializable;
 import java.util.concurrent.Callable;
@@ -78,8 +79,17 @@ public class AllInOneCacheOperationTest implements Callable<String>, Serializabl
     {
         map.put("r1", "v1");
         map.put("r2", "v2");
-        map.removeAll(Predicates.alwaysTrue());
-        return "REMOVE ALL executed: removed all entries";
+        // This runs on server side via executor service
+        // Use reflection to call removeAll since client API may not have it
+        try {
+            java.lang.reflect.Method removeAllMethod = map.getClass().getMethod("removeAll", com.hazelcast.query.Predicate.class);
+            removeAllMethod.invoke(map, TruePredicate.INSTANCE);
+            return "REMOVE ALL executed: removed all entries";
+        } catch (Exception e) {
+            // Fallback to clear if removeAll not available
+            map.clear();
+            return "REMOVE ALL executed: removed all entries (using clear)";
+        }
     }
 
     // --------------------------------------------------

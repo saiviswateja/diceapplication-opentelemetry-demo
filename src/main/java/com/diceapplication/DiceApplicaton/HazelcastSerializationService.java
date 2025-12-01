@@ -55,6 +55,7 @@ public class HazelcastSerializationService {
      * @param cacheName The name of the cache/map to collect statistics for
      * @return Map containing member UUID as key and statistics string as value
      */
+    @MAOTELTrace2
     public Map<String, String> collectCacheStats(String cacheName) {
         if (logger.isTraceEnabled()) {
             logger.trace(">> collectCacheStats()");
@@ -111,6 +112,7 @@ public class HazelcastSerializationService {
         return toRet;
     }
 
+    @MAOTELTrace2
     public Map<String, String> collectCacheStatsSubmit(String cacheName) {
 
         IExecutorService executorService = hazelcastInstance.getExecutorService("default");
@@ -133,6 +135,7 @@ public class HazelcastSerializationService {
         return result;
     }
 
+    @MAOTELTrace2
     public Map<String, String> collectCacheStatsSubmitToMembers(String cacheName) {
 
         IExecutorService executorService = hazelcastInstance.getExecutorService("default");
@@ -163,11 +166,13 @@ public class HazelcastSerializationService {
         return results;
     }
 
+    @MAOTELTrace2
     public void dummyMethod1()
     {
         System.out.println("Came to dummy method");
     }
 
+    @MAOTELTrace2
     public void dummyMethod2()
     {
         System.out.println("Came to dummy method");

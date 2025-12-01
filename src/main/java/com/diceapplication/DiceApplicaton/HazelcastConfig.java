@@ -1,28 +1,60 @@
 package com.diceapplication.DiceApplicaton;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.config.MapConfig;
-import com.hazelcast.core.Hazelcast;
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class HazelcastConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(HazelcastConfig.class);
+
     @Bean
     public HazelcastInstance hazelcastInstance() {
-        Config config = new Config();
-        config.setInstanceName("dice-roll-hazelcast");
+        logger.info("Configuring Hazelcast Client to connect to remote server...");
         
-        // Configure map for storing roll history
-        MapConfig mapConfig = new MapConfig();
-        mapConfig.setName("rollHistoryMap");
-        mapConfig.setTimeToLiveSeconds(3600); // 1 hour TTL
+        ClientConfig clientConfig = new ClientConfig();
         
-        config.addMapConfig(mapConfig);
+        // Set the client instance name
+        clientConfig.setInstanceName("dice-roll-hazelcast-client");
         
-        return Hazelcast.newHazelcastInstance(config);
+        // Configure network connection to Hazelcast server
+        // Server is running on localhost:5701
+        clientConfig.getNetworkConfig().addAddress("localhost:5701");
+        
+        // Connection settings
+        clientConfig.getNetworkConfig().setConnectionTimeout(10000); // 10 seconds
+        clientConfig.getNetworkConfig().setConnectionAttemptLimit(5);
+        clientConfig.getNetworkConfig().setConnectionAttemptPeriod(3000);
+        
+        // Enable smart routing for better performance
+        clientConfig.getNetworkConfig().setSmartRouting(true);
+        
+        // Enable redelivery for reliable operations
+        clientConfig.getNetworkConfig().setRedoOperation(true);
+        
+        logger.info("Hazelcast Client configured to connect to: localhost:5701");
+        
+        try {
+            // Create and connect to Hazelcast server
+            HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
+            
+            // Verify connection
+            if (client != null) {
+                logger.info("Successfully connected to Hazelcast Server!");
+                logger.info("Client Name: {}", client.getName());
+                logger.info("Cluster Members: {}", client.getCluster().getMembers().size());
+            }
+            
+            return client;
+        } catch (Exception e) {
+            logger.error("Failed to connect to Hazelcast Server. Make sure the server is running on localhost:5701", e);
+            throw new RuntimeException("Hazelcast client connection failed. Please ensure Hazelcast server is running.", e);
+        }
     }
 }
 

@@ -24,6 +24,7 @@ public class CacheStatsAccessor implements Callable<String>, Serializable {
         this.executorName = executorName;
     }
 
+    @MAOTELTrace2
     @Override
     public String call() throws Exception {
         HazelcastInstance hazelcastInstance = Hazelcast.getHazelcastInstanceByName(AVAILABILITY_CACHE);

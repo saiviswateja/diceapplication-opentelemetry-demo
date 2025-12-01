@@ -25,6 +25,7 @@ public class CacheStatsController {
      * @return Map containing member UUID as key and statistics string as value
      */
     @GetMapping("/stats")
+    @MAOTELTrace2
     public Map<String, String> getCacheStats(
             @RequestParam(value = "cacheName", required = false, defaultValue = "rollHistoryMap") String cacheName) {
         return hazelcastSerializationService.collectCacheStats(cacheName);
@@ -47,6 +48,7 @@ public class CacheStatsController {
      * @return Map containing member UUID as key and statistics string as value
      */
     @GetMapping("/stats/submit")
+    @MAOTELTrace2
     public Map<String, String> getCacheStatsSubmit(
             @RequestParam(value = "cacheName", required = false, defaultValue = "rollHistoryMap") String cacheName) {
         return hazelcastSerializationService.collectCacheStatsSubmit(cacheName);
@@ -58,6 +60,7 @@ public class CacheStatsController {
      * @return Map containing member UUID as key and statistics string as value
      */
     @GetMapping("/stats/submitToMembers")
+    @MAOTELTrace2
     public Map<String, String> getCacheStatsSubmitSubmitToMembers(
             @RequestParam(value = "cacheName", required = false, defaultValue = "rollHistoryMap") String cacheName) {
         return hazelcastSerializationService.collectCacheStatsSubmitToMembers(cacheName);
