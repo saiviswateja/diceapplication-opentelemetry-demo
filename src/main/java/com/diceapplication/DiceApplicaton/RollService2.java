@@ -53,8 +53,55 @@ public class RollService2
             logger.warn("Hazelcast serialization failed, but continuing with DB save", e);
         }
         
-        // Save to H2 database
-        historyRepo.save(history);
+        // Multiple database calls for sampling/tracing purposes
+        // DB Call 1: Save the current roll
+        RollHistory savedHistory = historyRepo.save(history);
+        logger.info("Saved roll history with ID: {}", savedHistory.getId());
+        
+        // DB Call 2: Count total rolls for this player (or all rolls if player is null)
+        long totalRolls;
+        if (playerVal != null) {
+            // Count rolls for specific player - using findAll and filter in memory
+            // (For better performance, you could add a custom query method)
+            totalRolls = historyRepo.findAll().stream()
+                    .filter(h -> playerVal.equals(h.getPlayer()))
+                    .count();
+        } else {
+            totalRolls = historyRepo.count();
+        }
+        logger.info("Total rolls count: {}", totalRolls);
+        
+        // DB Call 3: Find all recent rolls (last 10)
+        java.util.List<RollHistory> recentRolls = historyRepo.findAll();
+        if (recentRolls.size() > 10) {
+            recentRolls = recentRolls.subList(Math.max(0, recentRolls.size() - 10), recentRolls.size());
+        }
+        logger.info("Retrieved {} recent rolls", recentRolls.size());
+        
+        // DB Call 4: Find the roll by ID (just saved)
+        RollHistory foundHistory = historyRepo.findById(savedHistory.getId()).orElse(null);
+        if (foundHistory != null) {
+            logger.info("Verified saved roll: player={}, result={}", foundHistory.getPlayer(), foundHistory.getResult());
+        }
+        
+        // DB Call 5: Check if player has previous rolls
+        if (playerVal != null) {
+            java.util.List<RollHistory> playerRolls = historyRepo.findAll().stream()
+                    .filter(h -> playerVal.equals(h.getPlayer()))
+                    .collect(java.util.stream.Collectors.toList());
+            logger.info("Player {} has {} total rolls", playerVal, playerRolls.size());
+        }
+        
+        // DB Call 6: Get all rolls and calculate average result
+        java.util.List<RollHistory> allRolls = historyRepo.findAll();
+        if (!allRolls.isEmpty()) {
+            double averageResult = allRolls.stream()
+                    .mapToInt(RollHistory::getResult)
+                    .average()
+                    .orElse(0.0);
+            logger.info("Average dice result across all rolls: {}", averageResult);
+        }
+        
         return Integer.toString(result);
     }
 
