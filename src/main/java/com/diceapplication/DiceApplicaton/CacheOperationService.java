@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutionException;
 public class CacheOperationService {
     private static final Logger logger = LoggerFactory.getLogger(CacheOperationService.class);
 
-    @Autowired
+    @Autowired(required = false)
     private HazelcastInstance hazelcastInstance;
 
     /**
@@ -27,6 +27,9 @@ public class CacheOperationService {
      * @return Result string from all operations
      */
     public String executeAllOperations(String mapName) {
+        if (hazelcastInstance == null) {
+            return "Hazelcast is disabled. Cannot execute cache operations.";
+        }
         logger.info("Executing all cache operations for map: {}", mapName);
         try {
             IExecutorService executorService = hazelcastInstance.getExecutorService("default");
@@ -57,6 +60,9 @@ public class CacheOperationService {
      * @return Result string from all operations
      */
     public String executeAllOperationsLocal(String mapName) {
+        if (hazelcastInstance == null) {
+            return "Hazelcast is disabled. Cannot execute cache operations.";
+        }
         logger.info("Executing all cache operations locally for map: {}", mapName);
         try {
             AllInOneCacheOperationTest test = new AllInOneCacheOperationTest(mapName);
@@ -75,6 +81,9 @@ public class CacheOperationService {
      * @return Result message
      */
     public String executePut(String mapName, String key, String value) {
+        if (hazelcastInstance == null) {
+            return "Hazelcast is disabled. Cannot execute PUT operation.";
+        }
         logger.info("Executing PUT operation: map={}, key={}, value={}", mapName, key, value);
         try {
             IMap<String, String> map = hazelcastInstance.getMap(mapName);
@@ -93,6 +102,9 @@ public class CacheOperationService {
      * @return Result message with the value
      */
     public String executeGet(String mapName, String key) {
+        if (hazelcastInstance == null) {
+            return "Hazelcast is disabled. Cannot execute GET operation.";
+        }
         logger.info("Executing GET operation: map={}, key={}", mapName, key);
         try {
             IMap<String, String> map = hazelcastInstance.getMap(mapName);
@@ -111,6 +123,9 @@ public class CacheOperationService {
      * @return Result message
      */
     public String executeEvict(String mapName, String key) {
+        if (hazelcastInstance == null) {
+            return "Hazelcast is disabled. Cannot execute EVICT operation.";
+        }
         logger.info("Executing EVICT operation: map={}, key={}", mapName, key);
         try {
             IMap<String, String> map = hazelcastInstance.getMap(mapName);
@@ -128,6 +143,9 @@ public class CacheOperationService {
      * @return Result message
      */
     public String executeRemoveAll(String mapName) {
+        if (hazelcastInstance == null) {
+            return "Hazelcast is disabled. Cannot execute REMOVE ALL operation.";
+        }
         logger.info("Executing REMOVE ALL operation: map={}", mapName);
         try {
             IMap<String, String> map = hazelcastInstance.getMap(mapName);
@@ -147,6 +165,9 @@ public class CacheOperationService {
      * @return Result message
      */
     public String executeClear(String mapName) {
+        if (hazelcastInstance == null) {
+            return "Hazelcast is disabled. Cannot execute CLEAR operation.";
+        }
         logger.info("Executing CLEAR operation: map={}", mapName);
         try {
             IMap<String, String> map = hazelcastInstance.getMap(mapName);

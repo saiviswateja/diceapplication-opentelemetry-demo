@@ -17,7 +17,7 @@ public class RollHistoryController {
     @Autowired
     private RollHistoryRepository historyRepository;
 
-    @Autowired
+    @Autowired(required = false)
     private HazelcastInstance hazelcastInstance;
 
     /**
@@ -33,6 +33,9 @@ public class RollHistoryController {
      */
     @GetMapping("/hazelcast")
     public List<RollHistory> getRollsFromHazelcast() {
+        if (hazelcastInstance == null) {
+            return new ArrayList<>(); // Return empty list if Hazelcast is disabled
+        }
         // IMap operations automatically deserialize using AbstractSerializationService internally
         Map<String, RollHistory> map = hazelcastInstance.getMap("rollHistoryMap");
         Collection<RollHistory> values = map.values();

@@ -5,10 +5,12 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@ConditionalOnProperty(name = "hazelcast.enabled", havingValue = "true", matchIfMissing = false)
 public class HazelcastConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(HazelcastConfig.class);

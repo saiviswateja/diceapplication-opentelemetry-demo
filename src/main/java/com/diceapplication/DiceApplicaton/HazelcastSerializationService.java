@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class HazelcastSerializationService {
     private static final Logger logger = LoggerFactory.getLogger(HazelcastSerializationService.class);
 
-    @Autowired
+    @Autowired(required = false)
     private HazelcastInstance hazelcastInstance;
 
     /**
@@ -26,6 +26,10 @@ public class HazelcastSerializationService {
      * to serialize the RollHistory object before storing it.
      */
     public void serializeRollHistory(RollHistory rollHistory) {
+        if (hazelcastInstance == null) {
+            logger.debug("Hazelcast is disabled, skipping serialization");
+            return;
+        }
         try {
             // Map operations automatically serialize objects using AbstractSerializationService internally
             // This demonstrates the use of AbstractSerializationService through Map operations
@@ -57,6 +61,10 @@ public class HazelcastSerializationService {
      */
     @MAOTELTrace2
     public Map<String, String> collectCacheStats(String cacheName) {
+        if (hazelcastInstance == null) {
+            logger.warn("Hazelcast is disabled, cannot collect cache stats");
+            return new HashMap<>();
+        }
         if (logger.isTraceEnabled()) {
             logger.trace(">> collectCacheStats()");
         }
@@ -90,6 +98,10 @@ public class HazelcastSerializationService {
 
     public Map<String, String> collectCacheStatsExecute(String cacheName)
     {
+        if (hazelcastInstance == null) {
+            logger.warn("Hazelcast is disabled, cannot collect cache stats");
+            return new HashMap<>();
+        }
         if (logger.isTraceEnabled()) {
             logger.trace(">> collectCacheStatsExecute()");
         }
@@ -114,6 +126,10 @@ public class HazelcastSerializationService {
 
     @MAOTELTrace2
     public Map<String, String> collectCacheStatsSubmit(String cacheName) {
+        if (hazelcastInstance == null) {
+            logger.warn("Hazelcast is disabled, cannot collect cache stats");
+            return new HashMap<>();
+        }
 
         IExecutorService executorService = hazelcastInstance.getExecutorService("default");
 
@@ -137,6 +153,10 @@ public class HazelcastSerializationService {
 
     @MAOTELTrace2
     public Map<String, String> collectCacheStatsSubmitToMembers(String cacheName) {
+        if (hazelcastInstance == null) {
+            logger.warn("Hazelcast is disabled, cannot collect cache stats");
+            return new HashMap<>();
+        }
 
         IExecutorService executorService = hazelcastInstance.getExecutorService("default");
 

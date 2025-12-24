@@ -1,5 +1,6 @@
 package com.diceapplication.DiceApplicaton;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/cache")
 public class CacheStatsController {
     
-    @Autowired
+    @Autowired(required = false)
     HazelcastSerializationService hazelcastSerializationService;
 
     @Autowired
@@ -28,6 +29,11 @@ public class CacheStatsController {
     @MAOTELTrace2
     public Map<String, String> getCacheStats(
             @RequestParam(value = "cacheName", required = false, defaultValue = "rollHistoryMap") String cacheName) {
+        if (hazelcastSerializationService == null) {
+            Map<String, String> result = new HashMap<>();
+            result.put("error", "Hazelcast is disabled");
+            return result;
+        }
         return hazelcastSerializationService.collectCacheStats(cacheName);
     }
 
@@ -39,6 +45,11 @@ public class CacheStatsController {
     @GetMapping("/stats/execute")
     public Map<String, String> getCacheStatsExecute(
             @RequestParam(value = "cacheName", required = false, defaultValue = "rollHistoryMap") String cacheName) {
+        if (hazelcastSerializationService == null) {
+            Map<String, String> result = new HashMap<>();
+            result.put("error", "Hazelcast is disabled");
+            return result;
+        }
         return hazelcastSerializationService.collectCacheStatsExecute(cacheName);
     }
 
@@ -51,6 +62,11 @@ public class CacheStatsController {
     @MAOTELTrace2
     public Map<String, String> getCacheStatsSubmit(
             @RequestParam(value = "cacheName", required = false, defaultValue = "rollHistoryMap") String cacheName) {
+        if (hazelcastSerializationService == null) {
+            Map<String, String> result = new HashMap<>();
+            result.put("error", "Hazelcast is disabled");
+            return result;
+        }
         return hazelcastSerializationService.collectCacheStatsSubmit(cacheName);
     }
 
@@ -63,6 +79,11 @@ public class CacheStatsController {
     @MAOTELTrace2
     public Map<String, String> getCacheStatsSubmitSubmitToMembers(
             @RequestParam(value = "cacheName", required = false, defaultValue = "rollHistoryMap") String cacheName) {
+        if (hazelcastSerializationService == null) {
+            Map<String, String> result = new HashMap<>();
+            result.put("error", "Hazelcast is disabled");
+            return result;
+        }
         return hazelcastSerializationService.collectCacheStatsSubmitToMembers(cacheName);
     }
 }
